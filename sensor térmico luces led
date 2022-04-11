@@ -1,0 +1,61 @@
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+#define DHTPIN 2     // Digital pin conectado al DHT sensor 
+#define DHTTYPE    DHT11     // DHT 11
+
+DHT_Unified dht(DHTPIN, DHTTYPE);
+
+uint32_t delayMS;
+//int Sensor = A0 ;
+int maxima = 27 ;//temperatura maxima
+int minima = 16;//temperatura minima
+
+
+void setup() {
+pinMode(2, INPUT); //sensor
+pinMode(4, OUTPUT); //red
+pinMode(5, OUTPUT); //green
+pinMode(6, OUTPUT); //blue
+Serial.begin(9600);
+  // Initialize device.
+dht.begin();
+  // Print temperature sensor details.
+sensor_t sensor;
+dht.temperature().getSensor(&sensor);
+}
+void loop() {
+delay(1000); 
+
+sensors_event_t event;
+dht.temperature().getEvent(&event);
+Serial.print(F("Temperature: "));
+Serial.print(event.temperature);
+Serial.println(F("°C"));
+
+if (event.temperature <= minima) { //FRIO
+digitalWrite(6, HIGH);
+digitalWrite(5, LOW);
+digitalWrite(4, LOW);
+Serial.println(" FRIO (>'-'<)");
+  if  (event.temperature <= -2){
+      digitalWrite(4, HIGH);
+      delay(100);
+      digitalWrite(4, LOW);
+      delay(100);
+    }
+}
+else if (event.temperature >= maxima) { //CALIENTE
+digitalWrite(6, LOW);
+digitalWrite(5, LOW);
+digitalWrite(4, HIGH);
+Serial.println(" CALIENTE ψ(._. )>");
+}
+else { //fine
+digitalWrite(6, LOW);
+digitalWrite(5, HIGH);
+digitalWrite(4, LOW);
+Serial.println(" AMBIENTE (^人^).");
+}
+delay(10);
+}
